@@ -16,5 +16,6 @@ export interface TokenData {
 
 export interface TokenResponse {
   status: string;
+  message: string;
   token: TokenData;
 }

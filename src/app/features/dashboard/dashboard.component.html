@@ -29,6 +29,9 @@
           @if (isLoadingToken()) {
             <div class="token-loading" aria-live="polite"><span class="spinner" aria-hidden="true"></span><p>Loading your token…</p></div>
           } @else if (tokenService.token(); as tokenResponse) {
+            @if (tokenResponse.status === 'failure' && tokenResponse.message) {
+              <p class="muted-copy" role="status">{{ tokenResponse.message }}</p>
+            }
             <button class="card-action token-refresh" type="button" (click)="loadToken()" [disabled]="isLoadingToken()" [attr.aria-busy]="isLoadingToken()">
               <span aria-hidden="true">↻</span> {{ isLoadingToken() ? 'Refreshing…' : 'Refresh token' }}
             </button>
