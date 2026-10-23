@@ -1,0 +1,127 @@
+<main class="dashboard">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">B</span><strong>Beaconn</strong></div>
+    <div class="account">
+      <div class="avatar" aria-hidden="true">{{ (auth.currentSession()?.username || 'S')[0] }}</div>
+      <div class="account-copy">
+        <strong>{{ auth.currentSession()?.username }}</strong>
+        <small>{{ auth.currentSession()?.rollno }}</small>
+      </div>
+      <button class="theme-toggle" type="button" (click)="themeService.toggle()" [attr.aria-label]="themeService.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+        {{ themeService.theme() === 'dark' ? '☼' : '☾' }}
+      </button>
+      <button class="logout" type="button" (click)="logout()">Log out</button>
+    </div>
+  </header>
+
+  <section class="welcome">
+    <p class="eyebrow">Student dashboard</p>
+    <h1>Good to see you, {{ auth.currentSession()?.username }}.</h1>
+    <p>Everything you need for your hostel day, in one place.</p>
+  </section>
+
+  <section class="overview-grid" aria-label="Dashboard overview">
+    <article class="feature-card token-card">
+      <div class="card-heading"><span class="status-dot" [class.offline]="!tokenService.token()"></span><span>Live token</span><span class="coming-soon">{{ tokenService.token() ? 'Live now' : 'Checking…' }}</span></div>
+      <div class="token-panel" [attr.aria-busy]="isLoadingToken()">
+        <div class="token-copy">
+          <h2>Today's meal token</h2>
+          @if (isLoadingToken()) {
+            <div class="token-loading" aria-live="polite"><span class="spinner" aria-hidden="true"></span><p>Loading your token…</p></div>
+          } @else if (tokenService.token(); as tokenResponse) {
+            <button class="card-action token-refresh" type="button" (click)="loadToken()" [disabled]="isLoadingToken()" [attr.aria-busy]="isLoadingToken()">
+              <span aria-hidden="true">↻</span> {{ isLoadingToken() ? 'Refreshing…' : 'Refresh token' }}
+            </button>
+          } @else {
+            <p class="muted-copy">{{ tokenError() || 'Your live token will appear here.' }}</p>
+            <button class="card-action token-retry" type="button" (click)="loadToken()" [disabled]="isLoadingToken()" [attr.aria-busy]="isLoadingToken()">
+              {{ isLoadingToken() ? 'Retrying…' : 'Try again' }}
+            </button>
+          }
+        </div>
+        @if (tokenService.token()?.token; as token) {
+          <div class="qr-column">
+            @if (token.qrcode) {
+              <button class="qr-wrap" type="button" (click)="openQrModal()" aria-label="Expand meal token QR code">
+                <img class="qr-code" [src]="'data:image/png;base64,' + token.qrcode" alt="" />
+                <span>Tap to expand</span>
+              </button>
+            }
+            <div class="token-details" aria-label="Meal token details" aria-live="polite">
+              @for (detail of token.tokenDetails; track detail.name) {
+                <p class="token-detail">{{ detail.name }} x{{ detail.quantity }}</p>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </article>
+    <article class="feature-card leave-card leave-feature">
+      <div class="card-heading"><span class="icon">↗</span><span>Leave</span><span class="coming-soon">Request</span></div>
+      <h2>Apply for leave</h2>
+      <div class="leave-tabs" role="tablist" aria-label="Leave date mode">
+        <button type="button" role="tab" [attr.aria-selected]="leaveMode() === 'quick'" [class.active]="leaveMode() === 'quick'" (click)="setLeaveMode('quick')">Quick</button>
+        <button type="button" role="tab" [attr.aria-selected]="leaveMode() === 'custom'" [class.active]="leaveMode() === 'custom'" (click)="setLeaveMode('custom')">Custom</button>
+      </div>
+      <form class="leave-form" [formGroup]="leaveForm" (ngSubmit)="applyLeave()" [attr.aria-busy]="isSubmittingLeave()">
+        @if (leaveMode() === 'quick') {
+          <label>Days</label>
+          <div class="choice-row">
+            @for (days of [1, 2]; track days) {
+              <button type="button" [class.active]="leaveDays() === days" (click)="setLeaveDays(days)">{{ days }} day{{ days > 1 ? 's' : '' }}</button>
+            }
+            <button type="button" [class.active]="isCustomDays()" (click)="setCustomDays()">Custom</button>
+          </div>
+          @if (isCustomDays()) {
+            <label for="numDays">Custom number of days</label>
+            <input id="numDays" type="number" min="1" max="30" formControlName="numDays" (change)="setLeaveStart(leaveStart())" [attr.aria-invalid]="leaveForm.controls.numDays.touched && leaveForm.controls.numDays.invalid" aria-describedby="days-error" />
+            @if (leaveForm.controls.numDays.touched && leaveForm.controls.numDays.invalid) {
+              <small id="days-error" class="field-error">Choose between 1 and 30 days.</small>
+            }
+          }
+          <label>From</label>
+          <div class="choice-row">
+            <button type="button" [class.active]="leaveStart() === 'yesterday'" (click)="setLeaveStart('yesterday')">Yesterday</button>
+            <button type="button" [class.active]="leaveStart() === 'today'" (click)="setLeaveStart('today')">Today</button>
+            <button type="button" [class.active]="leaveStart() === 'tomorrow'" (click)="setLeaveStart('tomorrow')">Tomorrow</button>
+          </div>
+        } @else {
+          <div class="date-fields">
+            <label for="fromDate">From</label>
+            <input id="fromDate" type="date" formControlName="fromDate" />
+            <label for="toDate">To</label>
+            <input id="toDate" type="date" formControlName="toDate" />
+          </div>
+        }
+        <label for="reason">Reason <span>(optional)</span></label>
+        <input id="reason" type="text" formControlName="reason" placeholder="Add a reason" />
+        @if (leaveError()) {
+          <p class="form-error" role="alert" aria-live="assertive">{{ leaveError() }}</p>
+        }
+        @if (leaveMessage()) {
+          <p class="form-success" role="status">{{ leaveMessage() }}</p>
+        }
+        <button class="card-action submit-leave" type="submit" [disabled]="isSubmittingLeave()" [attr.aria-busy]="isSubmittingLeave()">
+          {{ isSubmittingLeave() ? 'Applying…' : 'Apply leave' }}
+        </button>
+      </form>
+    </article>
+  </section>
+
+  <section class="activity-card">
+    <div>
+      <p class="eyebrow">Your activity</p>
+      <h2>Recent requests</h2>
+    </div>
+    <p class="empty-state">Your approved and pending leave requests will show here.</p>
+  </section>
+  @if (isQrModalOpen() && tokenService.token()?.token?.qrcode; as qrCode) {
+    <div class="qr-modal-backdrop" role="presentation" (click)="closeQrModal()">
+      <section class="qr-modal" role="dialog" aria-modal="true" aria-labelledby="qr-modal-title" (click)="$event.stopPropagation()">
+        <button class="qr-modal-close" type="button" aria-label="Close QR code" (click)="closeQrModal()">×</button>
+        <h2 id="qr-modal-title">Meal token QR code</h2>
+        <img class="qr-modal-image" [src]="'data:image/png;base64,' + qrCode" alt="Your expanded live meal token QR code" />
+      </section>
+    </div>
+  }
+</main>

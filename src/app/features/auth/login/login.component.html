@@ -1,0 +1,40 @@
+<main class="login-page">
+  <section class="login-card" aria-labelledby="login-title">
+    <button class="theme-toggle login-theme-toggle" type="button" (click)="themeService.toggle()" [attr.aria-label]="themeService.theme() === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'">
+      {{ themeService.theme() === 'dark' ? '☼' : '☾' }}
+    </button>
+    <div class="brand-mark" aria-hidden="true">B</div>
+    <p class="eyebrow">Beaconn</p>
+    <h1 id="login-title">Welcome</h1>
+    <p class="intro">Login using EdviewX Hostel Credentials</p>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()">
+      <label for="rollno">Roll number</label>
+      <input id="rollno" type="text" formControlName="rollno" autocomplete="username" placeholder="Rollno" [attr.aria-invalid]="loginForm.controls.rollno.touched && loginForm.controls.rollno.invalid" aria-describedby="rollno-error" />
+      @if (loginForm.controls.rollno.touched && loginForm.controls.rollno.invalid) {
+        <small id="rollno-error" class="field-error">Enter your roll number.</small>
+      }
+
+      <label for="password">Password</label>
+      <div class="password-field">
+        <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password" autocomplete="current-password" placeholder="Edviewx password" [attr.aria-invalid]="loginForm.controls.password.touched && loginForm.controls.password.invalid" aria-describedby="password-error" />
+        <button type="button" class="password-toggle" [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'" (click)="togglePassword()">
+          {{ showPassword() ? 'Hide' : 'Show' }}
+        </button>
+      </div>
+      @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+        <small id="password-error" class="field-error">Enter your password.</small>
+      }
+
+      @if (errorMessage()) {
+        <p class="form-error" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()" [attr.aria-busy]="isSubmitting()">
+        {{ isSubmitting() ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+
+    <p class="security-note"><span aria-hidden="true">●</span> Your session is kept private to this browser tab.</p>
+  </section>
+</main>
