@@ -14,14 +14,7 @@ npm start
 ```
 
 Open `http://localhost:4200/`. Start the Go backend separately on
-`http://localhost:8080`. The repository root `.env` should contain:
-
-```env
-APP_ENV=development
-PORT=8080
-CLIENT_DOMAIN=hostel.ac.in
-ALLOWED_DOMAIN=http://localhost:4200
-```
+`http://localhost:8080`.
 
 ## Useful commands
 

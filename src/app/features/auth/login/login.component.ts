@@ -4,6 +4,13 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
 import { ThemeService } from '../../../core/theme/theme.service';
 
+const SAVED_CREDENTIALS_KEY = 'beaconn.login.credentials';
+
+interface SavedCredentials {
+  rollno: string;
+  password: string;
+}
+
 @Component({
   imports: [ReactiveFormsModule],
   selector: 'app-login',
@@ -19,10 +26,11 @@ export class LoginComponent {
   readonly isSubmitting = signal(false);
   readonly errorMessage = signal('');
   readonly showPassword = signal(false);
+  private readonly savedCredentials = this.readSavedCredentials();
 
   readonly loginForm = this.formBuilder.nonNullable.group({
-    rollno: ['', [Validators.required]],
-    password: ['', [Validators.required]],
+    rollno: [this.savedCredentials?.rollno ?? '', [Validators.required]],
+    password: [this.savedCredentials?.password ?? '', [Validators.required]],
   });
 
   submit(): void {
@@ -34,7 +42,10 @@ export class LoginComponent {
     this.isSubmitting.set(true);
     this.errorMessage.set('');
     this.auth.login(this.loginForm.getRawValue()).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
+      next: () => {
+        this.saveCredentials(this.loginForm.getRawValue());
+        this.router.navigate(['/dashboard']);
+      },
       error: (error: { status?: number }) => {
         this.isSubmitting.set(false);
         this.errorMessage.set(
@@ -48,5 +59,26 @@ export class LoginComponent {
 
   togglePassword(): void {
     this.showPassword.update((visible) => !visible);
+  }
+
+  private readSavedCredentials(): SavedCredentials | null {
+    const stored = localStorage.getItem(SAVED_CREDENTIALS_KEY);
+    if (!stored) {
+      return null;
+    }
+
+    try {
+      const credentials = JSON.parse(stored) as Partial<SavedCredentials>;
+      return typeof credentials.rollno === 'string' && typeof credentials.password === 'string'
+        ? (credentials as SavedCredentials)
+        : null;
+    } catch {
+      localStorage.removeItem(SAVED_CREDENTIALS_KEY);
+      return null;
+    }
+  }
+
+  private saveCredentials(credentials: SavedCredentials): void {
+    localStorage.setItem(SAVED_CREDENTIALS_KEY, JSON.stringify(credentials));
   }
 }
