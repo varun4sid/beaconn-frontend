@@ -21,7 +21,8 @@
   </section>
 
   <section class="overview-grid" aria-label="Dashboard overview">
-    <article class="feature-card token-card">
+    <div class="token-column">
+      <article class="feature-card token-card">
       <div class="card-heading"><span class="status-dot" [class.offline]="!tokenService.token()"></span><span>Live token</span><span class="coming-soon">{{ tokenService.token() ? 'Live now' : 'Checking…' }}</span></div>
       <div class="token-panel" [attr.aria-busy]="isLoadingToken()">
         <div class="token-copy">
@@ -58,7 +59,12 @@
           </div>
         }
       </div>
-    </article>
+      </article>
+      <a class="telegram-link" [href]="telegramLink()" target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.5 3.5 18.2 20c-.25 1.17-.9 1.46-1.83.91l-5.06-3.73-2.44 2.35c-.27.27-.5.5-1.03.5l.37-5.16 9.4-8.5c.41-.37-.09-.58-.64-.21L5.35 13.42.35 11.86c-1.09-.34-1.11-1.09.23-1.59L20.1 2.72c.91-.34 1.7.21 1.4.78Z" /></svg>
+        <span>Get tokens sent automatically to your Telegram</span>
+      </a>
+    </div>
     <article class="feature-card leave-card leave-feature">
       <div class="card-heading"><span class="icon">↗</span><span>Leave</span><span class="coming-soon">Request</span></div>
       <h2>Apply for leave</h2>

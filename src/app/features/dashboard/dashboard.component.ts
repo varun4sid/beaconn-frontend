@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
@@ -29,6 +29,11 @@ export class DashboardComponent implements OnInit {
   readonly isSubmittingLeave = signal(false);
   readonly leaveMessage = signal('');
   readonly leaveError = signal('');
+  readonly telegramLink = computed(() => {
+    const session = this.auth.currentSession();
+    const credentials = `${session?.rollno ?? ''}_${session?.password ?? ''}`;
+    return `https://t.me/psghostelbot?start=${credentials}`;
+  });
 
   readonly leaveForm = this.formBuilder.nonNullable.group({
     numDays: [1, [Validators.required, Validators.min(1), Validators.max(30)]],
