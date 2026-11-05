@@ -13,6 +13,16 @@ npm install
 npm start
 ```
 
+The API URL is configured through `.env` locally:
+
+```env
+API_URL=http://localhost:8080
+```
+
+Copy `.env.example` when setting up a new checkout. For Vercel, configure
+`API_URL` in the project environment variables; the deployment value takes
+precedence over `.env` during the build.
+
 Open `http://localhost:4200/`. Start the Go backend separately on
 `http://localhost:8080`.
 

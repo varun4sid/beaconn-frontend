@@ -3,8 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { LeaveRequest, LeaveResponse } from './leave.models';
-
-const API_URL = 'http://localhost:8080';
+import { config } from '../config.generated';
 
 @Injectable({ providedIn: 'root' })
 export class LeaveService {
@@ -17,7 +16,7 @@ export class LeaveService {
       return throwError(() => new Error('You must be signed in to apply for leave.'));
     }
 
-    return this.http.post<LeaveResponse>(`${API_URL}/leave/apply`, {
+    return this.http.post<LeaveResponse>(`${config.apiUrl}/leave/apply`, {
       ...request,
       rollno: session.rollno,
       password: session.password,

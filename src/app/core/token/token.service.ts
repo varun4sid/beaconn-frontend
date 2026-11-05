@@ -3,8 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap, throwError } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { TokenResponse } from './token.models';
-
-const API_URL = 'http://localhost:8080';
+import { config } from '../config.generated';
 
 @Injectable({ providedIn: 'root' })
 export class TokenService {
@@ -20,7 +19,7 @@ export class TokenService {
       return throwError(() => new Error('You must be signed in to fetch a token.'));
     }
 
-    return this.http.post<TokenResponse>(`${API_URL}/token`, {
+    return this.http.post<TokenResponse>(`${config.apiUrl}/token`, {
       rollno: session.rollno,
       password: session.password,
     }).pipe(

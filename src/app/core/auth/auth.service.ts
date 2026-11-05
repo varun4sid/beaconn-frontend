@@ -2,8 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { AuthSession, LoginRequest, LoginResponse } from './auth.models';
-
-const API_URL = 'http://localhost:8080';
+import { config } from '../config.generated';
 const SESSION_KEY = 'beaconn.auth';
 
 @Injectable({ providedIn: 'root' })
@@ -14,7 +13,7 @@ export class AuthService {
   constructor(private readonly http: HttpClient) {}
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${API_URL}/auth/login`, credentials).pipe(
+    return this.http.post<LoginResponse>(`${config.apiUrl}/auth/login`, credentials).pipe(
       tap((response) => {
         if (response.status !== 'success') {
           throw new Error('The server did not confirm the login.');
