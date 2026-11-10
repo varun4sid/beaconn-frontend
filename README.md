@@ -1,8 +1,11 @@
 # Beaconn frontend
 
-The Beaconn frontend is an Angular 22 standalone application for the student
-portal. It provides login, a responsive dashboard, live meal-token loading, and
-leave application.
+Beaconn is an alternative client to PSG Tech Hostel's existing student dashboard with a custom API with the following quality of life features
+
++ Display live token upon login
++ Auto apply leaves instantly
+  
+Additionally, user can apply to a [telegram bot](https://t.me/psghostelbot) that sends applied tokens before every meal
 
 ## Run locally
 
